@@ -1,0 +1,21 @@
+site,nouveau code,habitat,rarefied species richness
+BAT_Bon,SB.bo,BS,8
+BAT_Lec,SB.le,BS,2
+BAT_Mve,SB.fv,BS,10
+LOP_Ang,FL.a,LF,8
+LOP_BoM ,FL.bm,LF,10
+LOP_Gdeb,FL.gd,LF,10
+LOP_BV1,SNBL.13,LUS,8
+LOP_Mab,SNBL.20,LUS,8
+LOPE_BV2,SNBL.13,LUS,8
+LOP_Fou,SNBL.20,LUS,11
+LOP_Uap,SL.u,LS,3
+LOP_Cag  ,SL.ca,LS,3
+LOP_SEG,SL.se,LS,5
+LOP_StG,SL.sg,LS,4
+Mouila1,SM1,MS,6
+Mouila2,SM2,MS,9
+Mouila3,SM3,MS,9
+Tchib1,ST1,TS,5
+Tchib2   ,ST2,TS,7
+Tchib3,ST3,TS,6

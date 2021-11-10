@@ -1,0 +1,21 @@
+Habitat,NewSiteName,Treatment,Anciens Code,Site,UTM (S32),Samples,Date1,Date2
+Savanes brûlées,LBS4,LBS,53,Stone gorilla,0789021 - 9978393,28,26/01/2017,NA
+Savanes brûlées,LBS2,LBS,3,Case Agreco,0790102 - 9986028,11,15/02/2017,NA
+Savanes brûlées,LBS3,LBS,64,SEGC,0789762 - 9977690,52,28/06/2017,NA
+Savanes brûlées,LBS1,LBS,65,Uapaka/Lopé 2,0787972 - 9976342,40,14/02/2017,NA
+Savanes non brûlées,LUS13a,LUS,34,Boucle vitex1,0787638 - 9981516,39,16/02/2017,NA
+Savanes non brûlées,LUS13b,LUS,33,Boucle vitex2,0786990 - 9981692,37,16/02/2017,NA
+Savanes non brûlées,LUS20a,LUS,39,Mbaya gallery,0789439 - 9981117,37,17/02/2017,NA
+Savanes non brûlées,LUS20b,LUS,38,Fougère,0788769 - 9980752,42,04/04/2017,NA
+Forêts matures,LF1,LF,,GEM-Plot Angak,0786482 - 9980685,178,22/02/2017,23/02/2017
+Forêts matures,LF3,LF,,Grand débardage,0788292 - 9979056,219,20/02/2017,21/02/2017
+Forêts matures,LF2,LF,,Bosquet Mandhrill,0791211 - 9981976,168,05/04/2017,NA
+Savanes brûlées (T),MS1,MS,T.1,Tchibanga 1,0714794 - 9686637,56,21/04/2017,NA
+Savanes brûlées (T),MS2,MS,T.2,Tchibanga 2,0718777 - 9677520,53,21/04/2017,NA
+Savanes brûlées (T),MS3,MS,T.3,Tchibanga 3,0695304 - 9713760,57,22/04/2017,NA
+Savanes brûlées (M),MN1,MN,M.1,Mouila 1,0736560 - 9756646,58,22/04/2017,NA
+Savanes brûlées (M),MN2,MN,M.2,Mouila 2,0741886 - 9764444,73,23/04/2017,NA
+Savanes brûlées (M),MN3,MN,M.3,Mouila 3,0739641 - 9759680,66,23/04/2017,NA
+Savanes Brûlées (FCV),B3,B,FCV.1,M'vengue,0351425 - 9821535,41,01/02/2018,NA
+Savanes Brûlées (FCV),B1,B,FCV.2,Bongoville-Léconi,0384800 - 9822204,44,02/02/2018,NA
+Savanes Brûlées (FCV),B2,B,FCV.3,FCV-Bongoville,0351426 - 9821533,37,02/02/2018,NA
