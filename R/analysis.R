@@ -25,7 +25,7 @@ sum(abundance$Samples) # 1336 samples
 #### Rarefaction analysis ####
 
 # Transpose for rarefaction
-ssMatrix <- t(ssMatrix[, -1])
+ssMatrix <- t(ssMatrix[,-1])
 
 # Store sample size (min count) for rarefaction
 rareSample <- min(rowSums(ssMatrix))
@@ -112,7 +112,7 @@ rareResults <-
   merge(rareResults, siteCodes) # merge final treatment names
 
 burnedOnly <-
-  rareResults[rareResults$TreatmentFinal %in% c("B", "LBS", "MN", "MS"), ]
+  rareResults[rareResults$TreatmentFinal %in% c("B", "LBS", "MN", "MS"),]
 
 # Create numeric variable to plot in correct order for paper
 burnedOnly$numericTreatment <-
@@ -174,7 +174,7 @@ dev.off()
 
 # Burned savanna abundance first
 abundSav <-
-  abundance[-which(abundance$Treatment %in% c("LF", "LUS")), ]
+  abundance[-which(abundance$Treatment %in% c("LF", "LUS")),]
 
 sum(abundSav$Samples)
 aggregate(abundSav$Samples ~ abundSav$Treatment, FUN = sum)
@@ -247,7 +247,8 @@ dev.off()
 
 #### Hierarchical clustering ####
 ssMatrixSc <- scale(ssMatrix)
-row.names(ssMatrixSc) <- siteCodes$Treatment # new treatment names in paper
+row.names(ssMatrixSc) <-
+  siteCodes$Treatment # new treatment names in paper
 dist_mat <- dist(ssMatrixSc, method = 'euclidean')
 
 # Figure 4
@@ -256,7 +257,7 @@ plot(hclust_avg)
 
 #### Lope unburned savannas abundance ####
 abundLop <-
-  abundance[which(abundance$Treatment %in% c("LF", "LUS", "LBS")), ]
+  abundance[which(abundance$Treatment %in% c("LF", "LUS", "LBS")),]
 
 sum(abundLop$Samples)
 aggregate(abundLop$Samples ~ abundLop$Treatment, FUN = sum)
@@ -308,8 +309,9 @@ mtext(
 )
 dev.off()
 
-#### Lope rarefied richness #### 
-lopeOnly <- rareResults[which(rareResults$TreatmentFinal %in% c("LF", "LUS", "LBS")),]
+#### Lope rarefied richness ####
+lopeOnly <-
+  rareResults[which(rareResults$TreatmentFinal %in% c("LF", "LUS", "LBS")), ]
 
 # Create numeric variable to plot in correct order for paper
 lopeOnly$numericTreatment <-
@@ -368,20 +370,29 @@ dev.off()
 #### NMDS ####
 
 # create a similarity matrix
-dis <- vegdist(ssMatrixSc, method = "bray") # similarity matrix
+row.names(ssMatrix)
+lopeMatrix <- ssMatrix[4:14, ]
+
+dis <- vegdist(lopeMatrix, method = "bray") # similarity matrix
 
 # calculate the mds using the mds() function
-n <- nmds(dis, k = 2) # mds
+n <- metaMDS(dis, k = 2) # mds
 
-jpeg(filename = paste0(fold, "/graphiques/NMDS_Lope.jpg"),width = 800, height = 800, quality = 100, res = 150)
-par(mar = c(4,4,1,1))
-# plot
-plot(n, type = "n", xlim = c(-.7, .7), ylim = c(-.7, .7), cex = 0.8, cex.axis = 0.8) # produce plot
-(nn <-
-    names(dat1)) # names of the columns of the species-by-samples matrix
-nn <- as.character(sites$MDS)
+# Figure 6
+jpeg(
+  filename = paste0(fold, "/graphiques/NMDS_Lope.jpg"),
+  width = 800,
+  height = 800,
+  quality = 100,
+  res = 150
+)
 
-# quelques pointes sont superposer, ajuster avec 'jitter' (randon noise)
-text(jitter(n$points, factor = 400), nn, cex = 0.6) # names of sites/plots
+par(mar = c(4, 4, 1, 1))
+
+plot(n,
+     xlim = c(-.7, .7),
+     ylim = c(-.7, .7),
+     col = "white")
+text(n$points, row.names(lopeMatrix), cex = 0.6)
+
 dev.off()
-
