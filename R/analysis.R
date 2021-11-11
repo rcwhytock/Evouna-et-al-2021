@@ -366,3 +366,22 @@ mtext(
 dev.off()
 
 #### NMDS ####
+
+# create a similarity matrix
+dis <- vegdist(ssMatrixSc, method = "bray") # similarity matrix
+
+# calculate the mds using the mds() function
+n <- nmds(dis, k = 2) # mds
+
+jpeg(filename = paste0(fold, "/graphiques/NMDS_Lope.jpg"),width = 800, height = 800, quality = 100, res = 150)
+par(mar = c(4,4,1,1))
+# plot
+plot(n, type = "n", xlim = c(-.7, .7), ylim = c(-.7, .7), cex = 0.8, cex.axis = 0.8) # produce plot
+(nn <-
+    names(dat1)) # names of the columns of the species-by-samples matrix
+nn <- as.character(sites$MDS)
+
+# quelques pointes sont superposer, ajuster avec 'jitter' (randon noise)
+text(jitter(n$points, factor = 400), nn, cex = 0.6) # names of sites/plots
+dev.off()
+
