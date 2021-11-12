@@ -5,6 +5,7 @@
 # Load packages
 library(vegan)
 library(FSA)
+library(dendextend)
 
 #### Load the species x sample matrix for rarefaction ####
 ssMatrix <- read.csv("../data/species_x_sample_matrix.csv")
@@ -247,13 +248,33 @@ dev.off()
 
 #### Hierarchical clustering ####
 ssMatrixSc <- scale(ssMatrix)
+
 row.names(ssMatrixSc) <-
   siteCodes$Treatment # new treatment names in paper
 dist_mat <- dist(ssMatrixSc, method = 'euclidean')
+hc <- hclust(dist_mat, method = 'ward.D2')
+dend <- as.dendrogram(hc)
 
 # Figure 4
-hclust_avg <- hclust(dist_mat, method = 'ward.D2')
-plot(hclust_avg)
+jpeg(
+  filename = "../graphics/dendrogram.jpg",
+  width = 600,
+  height = 600,
+  quality = 100,
+  res = 150
+)
+
+
+par(mfrow = c(1,1), mar = c(5,2,1,0))
+dend <- dend %>%
+  color_branches(k = 7) %>%
+  set("branches_lwd", c(2,1,2)) %>%
+  set("branches_lty", c(1,2,1))
+
+dend <- color_labels(dend, k = 7)
+
+plot(dend)
+dev.off()
 
 #### Lope unburned savannas abundance ####
 abundLop <-
@@ -370,7 +391,8 @@ dev.off()
 #### NMDS ####
 
 # create a similarity matrix
-row.names(ssMatrix)
+row.names(ssMatrix) <-
+  siteCodes$Treatment
 lopeMatrix <- ssMatrix[4:14, ]
 
 dis <- vegdist(lopeMatrix, method = "bray") # similarity matrix
@@ -380,7 +402,7 @@ n <- metaMDS(dis, k = 2) # mds
 
 # Figure 6
 jpeg(
-  filename = paste0(fold, "/graphiques/NMDS_Lope.jpg"),
+  filename = "../graphics/NMDS_Lope.jpg",
   width = 800,
   height = 800,
   quality = 100,
@@ -390,9 +412,54 @@ jpeg(
 par(mar = c(4, 4, 1, 1))
 
 plot(n,
-     xlim = c(-.7, .7),
-     ylim = c(-.7, .7),
-     col = "white")
-text(n$points, row.names(lopeMatrix), cex = 0.6)
+     xlim = c(-.6, .45),
+     ylim = c(-.51, .4),
+     type = "n")
+
+points(
+  jitter(n$points, factor = 100),
+  pch = 21,
+  bg = c(
+    "chartreuse3",
+    "chartreuse3",
+    "chartreuse3",
+    "darkgoldenrod1",
+    "cornsilk4",
+    "darkgoldenrod1",
+    "cornsilk4",
+    "brown4",
+    "brown4",
+    "brown4",
+    "brown4"
+  ),
+  cex = 1.8
+)
+
+# text(n$points, row.names(lopeMatrix), 
+#      col = c(
+#   "chartreuse3",
+#   "chartreuse3",
+#   "chartreuse3",
+#   "darkgoldenrod1",
+#   "darkgoldenrod1",
+#   "darkgoldenrod1",
+#   "darkgoldenrod1",
+#   "brown4",
+#   "brown4",
+#   "brown4",
+#   "brown4"
+# ),cex = 0.8)
+
+legend(
+  "bottomright",
+  pch = 16,
+  lty = NULL,
+  legend = c("LF", "LUS 13", "LUS 20", "LBS"),
+  col = c("chartreuse3", "darkgoldenrod1", "cornsilk4", "brown4"),
+  bg = c("chartreuse3", "darkgoldenrod1", "cornsilk4", "brown4"),
+  bty = "n",
+  cex = 1
+)
 
 dev.off()
+
