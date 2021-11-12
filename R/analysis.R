@@ -26,7 +26,7 @@ sum(abundance$Samples) # 1336 samples
 #### Rarefaction analysis ####
 
 # Transpose for rarefaction
-ssMatrix <- t(ssMatrix[,-1])
+ssMatrix <- t(ssMatrix[, -1])
 
 # Store sample size (min count) for rarefaction
 rareSample <- min(rowSums(ssMatrix))
@@ -113,7 +113,7 @@ rareResults <-
   merge(rareResults, siteCodes) # merge final treatment names
 
 burnedOnly <-
-  rareResults[rareResults$TreatmentFinal %in% c("B", "LBS", "MN", "MS"),]
+  rareResults[rareResults$TreatmentFinal %in% c("B", "LBS", "MN", "MS"), ]
 
 # Create numeric variable to plot in correct order for paper
 burnedOnly$numericTreatment <-
@@ -175,7 +175,7 @@ dev.off()
 
 # Burned savanna abundance first
 abundSav <-
-  abundance[-which(abundance$Treatment %in% c("LF", "LUS")),]
+  abundance[-which(abundance$Treatment %in% c("LF", "LUS")), ]
 
 sum(abundSav$Samples)
 aggregate(abundSav$Samples ~ abundSav$Treatment, FUN = sum)
@@ -265,11 +265,11 @@ jpeg(
 )
 
 
-par(mfrow = c(1,1), mar = c(5,2,1,0))
+par(mfrow = c(1, 1), mar = c(5, 2, 1, 0))
 dend <- dend %>%
   color_branches(k = 7) %>%
-  set("branches_lwd", c(2,1,2)) %>%
-  set("branches_lty", c(1,2,1))
+  set("branches_lwd", c(2, 1, 2)) %>%
+  set("branches_lty", c(1, 2, 1))
 
 dend <- color_labels(dend, k = 7)
 
@@ -278,7 +278,7 @@ dev.off()
 
 #### Lope unburned savannas abundance ####
 abundLop <-
-  abundance[which(abundance$Treatment %in% c("LF", "LUS", "LBS")),]
+  abundance[which(abundance$Treatment %in% c("LF", "LUS", "LBS")), ]
 
 sum(abundLop$Samples)
 aggregate(abundLop$Samples ~ abundLop$Treatment, FUN = sum)
@@ -332,7 +332,7 @@ dev.off()
 
 #### Lope rarefied richness ####
 lopeOnly <-
-  rareResults[which(rareResults$TreatmentFinal %in% c("LF", "LUS", "LBS")), ]
+  rareResults[which(rareResults$TreatmentFinal %in% c("LF", "LUS", "LBS")),]
 
 # Create numeric variable to plot in correct order for paper
 lopeOnly$numericTreatment <-
@@ -393,11 +393,11 @@ dev.off()
 # create a similarity matrix
 row.names(ssMatrix) <-
   siteCodes$Treatment
-lopeMatrix <- ssMatrix[4:14, ]
+lopeMatrix <- ssMatrix[4:14,]
 
 dis <- vegdist(lopeMatrix, method = "bray") # similarity matrix
 
-# calculate the mds using the mds() function
+# calculate the nmds
 n <- metaMDS(dis, k = 2) # mds
 
 # Figure 6
@@ -435,7 +435,7 @@ points(
   cex = 1.8
 )
 
-# text(n$points, row.names(lopeMatrix), 
+# text(n$points, row.names(lopeMatrix),
 #      col = c(
 #   "chartreuse3",
 #   "chartreuse3",
@@ -462,4 +462,3 @@ legend(
 )
 
 dev.off()
-
