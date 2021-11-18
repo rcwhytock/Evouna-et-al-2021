@@ -6,6 +6,8 @@
 library(vegan)
 library(FSA)
 library(dendextend)
+library(cluster)
+library(emmeans)
 
 #### Load the species x sample matrix for rarefaction ####
 ssMatrix <- read.csv("../data/species_x_sample_matrix.csv")
@@ -101,7 +103,7 @@ rarecurve(
 legend(
   "bottomright",
   lty = c(1, 2, 3, 4),
-  legend = c("Other", "LF", "LUS", "LS"),
+  legend = c("Other", "LF", "LUS", "LBS"),
   col = c("cornflowerblue", "chartreuse3", "darkgoldenrod1", "brown4"),
   bty = "n",
   lwd = 2
@@ -132,36 +134,78 @@ burnedOnly$numericTreatment <-
          burnedOnly$numericTreatment)
 
 # Test of difference in rarefied species richness in burned savs
-kruskal.test(x = burnedOnly$rarefiedRichness,
-             g = burnedOnly$TreatmentFina)
+mod1 <- glm(rarefiedRichness ~ TreatmentFinal-1, data = burnedOnly) # test difference from 0 for each treatment
+hist(resid(mod1))
+par(mfrow = c(2,2))
+plot(mod1) # ok
+summary(mod1)
 
-dunnTest(rarefiedRichness ~ TreatmentFinal, burnedOnly)
+confints1 <- data.frame(emmeans(mod1, ~TreatmentFinal)) # note that df Inf is ok, see https://cran.r-project.org/web/packages/emmeans/vignettes/FAQs.html#asymp
 
+confints1$TreatmentNumeric <-
+  ifelse(confints1$TreatmentFinal == "LBS", 1, 0)
+confints1$TreatmentNumeric <-
+  ifelse(confints1$TreatmentFinal == "B",
+         2,
+         confints1$TreatmentNumeric)
+confints1$TreatmentNumeric <-
+  ifelse(confints1$TreatmentFinal == "MN",
+         3,
+         confints1$TreatmentNumeric)
+confints1$TreatmentNumeric <-
+  ifelse(confints1$TreatmentFinal == "MS",
+         4,
+         confints1$TreatmentNumeric)
+
+# POst hoc pairwase comparison, tukey method for family of 4 estimates
+pairs(emmeans(mod1, ~TreatmentFinal)) 
+
+# Create transparent color for plotting raw data points
+mycol <- rgb(0, 0, 0, alpha = 0.35, names = "black")
+
+# Add numeric treatment name for plotting raw data
+rareResults$TreatmentNumeric <-
+  ifelse(rareResults$TreatmentFinal == "LBS", 1, 0)
+rareResults$TreatmentNumeric <-
+  ifelse(rareResults$TreatmentFinal == "B",
+         2,
+         rareResults$TreatmentNumeric)
+rareResults$TreatmentNumeric <-
+  ifelse(rareResults$TreatmentFinal == "MN",
+         3,
+         rareResults$TreatmentNumeric)
+rareResults$TreatmentNumeric <-
+  ifelse(rareResults$TreatmentFinal == "MS",
+         4,
+         rareResults$TreatmentNumeric)
+
+# Plot
 jpeg(
   filename = "../graphics/burnedSavannaRarefied.jpg",
   width = 600,
-  height = 600,
+  height = 550,
   quality = 100,
   res = 150
 )
 
 par(mfrow = c(1, 1), mar = c(5, 5, 2, 1))
 
-boxplot(
-  rarefiedRichness ~ numericTreatment,
-  burnedOnly,
-  ylab = "Rarefied species richness",
-  xlab = "Area",
-  axes = F,
-  ylim = c(0, 15),
-  cex.lab = 0.9
-)
+plot(emmean ~ TreatmentNumeric, confints1, axes = F, xlim = c(0.8,4.5), pch = 16,
+     ylim = c(0,15), ylab = "Rarefied species richness", xlab = "Sampling area")
+points(rarefiedRichness ~ jitter(TreatmentNumeric, factor = 0.2), rareResults, col = mycol, pch = 16)
+
+arrows(x0 = confints1$TreatmentNumeric, 
+       x1 = confints1$TreatmentNumeric,
+       y0 = confints1$asymp.LCL,
+       y1 = confints1$asymp.UCL,
+       code = 3, angle = 90,
+       length = 0.05)
 
 axis(1,
      at = c(1:4),
      labels = c("LBS", "B", "MN", "MS"))
-axis(2, at = seq(0, 50, 5))
-box()
+axis(2, at = seq(0, 15, 5))
+#box()
 
 mtext(
   side = 3,
@@ -169,6 +213,23 @@ mtext(
   adj = 0,
   line = 1
 )
+
+# Significant pairwise differences
+arrows(
+  x0 = 1,
+  y0 = 13,
+  x1 = 3,
+  y1 = 13,
+  code = 3,
+  angle = 90,
+  length = 0.03
+)
+
+text(x = 2,
+     y = 14,
+     substitute(paste(italic('p'), " = 0.039")),
+     cex = 0.5)
+
 dev.off()
 
 #### Abundance analysis ####
@@ -180,12 +241,34 @@ abundSav <-
 sum(abundSav$Samples)
 aggregate(abundSav$Samples ~ abundSav$Treatment, FUN = sum)
 
-kruskal.test(x = abundSav$Samples,
-             g = abundSav$Treatment)
+# Test of difference in rarefied species richness in burned savs
+mod2 <- glm.nb(Samples ~ Treatment-1, data = abundSav) # test difference from 0 for each treatment
+hist(resid(mod2))
+par(mfrow = c(2,2))
+plot(mod2) # ok
+summary(mod2)
 
-dunnTest(Samples ~ Treatment, abundSav)
+confints2 <- data.frame(emmeans(mod2, ~Treatment)) # note that df Inf is ok, see https://cran.r-project.org/web/packages/emmeans/vignettes/FAQs.html#asymp
 
-# Boxplots # FIGURE 3a #
+confints2$TreatmentNumeric <-
+  ifelse(confints2$Treatment == "LBS", 1, 0)
+confints2$TreatmentNumeric <-
+  ifelse(confints2$Treatment == "B",
+         2,
+         confints2$TreatmentNumeric)
+confints2$TreatmentNumeric <-
+  ifelse(confints2$Treatment == "MN",
+         3,
+         confints2$TreatmentNumeric)
+confints2$TreatmentNumeric <-
+  ifelse(confints2$Treatment == "MS",
+         4,
+         confints2$TreatmentNumeric)
+
+# POst hoc pairwase comparison, tukey method for family of 4 estimates
+pairs(emmeans(mod2, ~Treatment)) 
+
+# Plots # FIGURE 3a #
 abundSav$numericTreatment <-
   ifelse(abundSav$Treatment == "LBS", 1, 0)
 abundSav$numericTreatment <-
@@ -195,48 +278,33 @@ abundSav$numericTreatment <-
 abundSav$numericTreatment <-
   ifelse(abundSav$Treatment == "MS", 4, abundSav$numericTreatment)
 
-
+# Plot
 jpeg(
-  filename = "../graphics/numberOfEncounters.jpg",
+  filename = "../graphics/burnedSavannaAbund.jpg",
   width = 600,
-  height = 600,
+  height = 550,
   quality = 100,
   res = 150
 )
 
 par(mfrow = c(1, 1), mar = c(5, 5, 2, 1))
 
-boxplot(
-  Samples ~ numericTreatment,
-  abundSav,
-  ylab = "Number of samples",
-  xlab = "Area",
-  axes = F,
-  ylim = c(0, 80),
-  cex.lab = 0.9
-)
+plot(exp(emmean) ~ TreatmentNumeric, confints2, axes = F, xlim = c(0.8,4.5), pch = 16,
+     ylim = c(0,110), ylab = "Number of samples", xlab = "Sampling area")
+points(Samples ~ jitter(numericTreatment, factor = 0.2), abundSav, col = mycol, pch = 16)
+
+arrows(x0 = confints2$TreatmentNumeric, 
+       x1 = confints2$TreatmentNumeric,
+       y0 = exp(confints2$asymp.LCL),
+       y1 = exp(confints2$asymp.UCL),
+       code = 3, angle = 90,
+       length = 0.05)
 
 axis(1,
      at = c(1:4),
      labels = c("LBS", "B", "MN", "MS"))
-axis(2, at = seq(0, 80, 10))
-box()
-
-# Show significant differences LBS - MN
-arrows(
-  x0 = 1,
-  y0 = 78,
-  x1 = 3,
-  y1 = 78,
-  code = 3,
-  angle = 90,
-  length = 0.05
-)
-text(x = 2,
-     y = 80,
-     substitute(paste(italic('p'), " = 0.026")),
-     cex = 0.5)
-
+axis(2, at = seq(0, 120, 20))
+#box()
 
 mtext(
   side = 3,
@@ -244,36 +312,75 @@ mtext(
   adj = 0,
   line = 1
 )
+
+# Significant pairwise differences
+arrows(
+  x0 = 1,
+  y0 = 96,
+  x1 = 3,
+  y1 = 96,
+  code = 3,
+  angle = 90,
+  length = 0.03
+)
+
+text(x = 2,
+     y = 100,
+     substitute(paste(italic('p'), " = 0.001")),
+     cex = 0.5)
+
+arrows(
+  x0 = 1,
+  y0 = 106,
+  x1 = 4,
+  y1 = 106,
+  code = 3,
+  angle = 90,
+  length = 0.03
+)
+
+text(x = 2.5,
+     y = 110,
+     substitute(paste(italic('p'), " = 0.029")),
+     cex = 0.5)
+
 dev.off()
 
-#### Hierarchical clustering ####
-ssMatrixSc <- scale(ssMatrix)
 
-row.names(ssMatrixSc) <-
+#### Hierarchical clustering ####
+row.names(ssMatrix) <-
   siteCodes$Treatment # new treatment names in paper
-dist_mat <- dist(ssMatrixSc, method = 'euclidean')
-hc <- hclust(dist_mat, method = 'ward.D2')
+
+row.names(ssMatrix)[7] <- "LUS13.1"
+row.names(ssMatrix)[8] <- "LUS20.1"
+row.names(ssMatrix)[9] <- "LUS13.2"
+row.names(ssMatrix)[10] <- "LUS20.2"
+
+
+dist_mat <- vegdist(ssMatrix, method = 'bray')
+hc <- agnes(dist_mat)
 dend <- as.dendrogram(hc)
 
 # Figure 4
 jpeg(
   filename = "../graphics/dendrogram.jpg",
-  width = 600,
-  height = 600,
+  width = 800,
+  height = 800,
   quality = 100,
   res = 150
 )
 
 
-par(mfrow = c(1, 1), mar = c(5, 2, 1, 0))
+par(mfrow = c(1, 1), mar = c(5, 5, 5, 5))
 dend <- dend %>%
-  color_branches(k = 7) %>%
+  color_branches(k = 3) %>%
   set("branches_lwd", c(2, 1, 2)) %>%
   set("branches_lty", c(1, 2, 1))
 
-dend <- color_labels(dend, k = 7)
+dend <- color_labels(dend, k = 3)
 
-plot(dend)
+plot(dend, horiz = T)
+
 dev.off()
 
 #### Lope unburned savannas abundance ####
@@ -283,12 +390,29 @@ abundLop <-
 sum(abundLop$Samples)
 aggregate(abundLop$Samples ~ abundLop$Treatment, FUN = sum)
 
-kruskal.test(x = abundLop$Samples,
-             g = abundLop$Treatment)
+# Test of difference in rarefied species richness in burned savs
+mod3 <- glm.nb(Samples ~ Treatment-1, data = abundLop) # test difference from 0 for each treatment
+hist(resid(mod3))
+par(mfrow = c(2,2))
+plot(mod3) # ok
+summary(mod3)
 
-dunnTest(Samples ~ Treatment, abundLop)
+confints3 <- data.frame(emmeans(mod3, ~Treatment)) # note that df Inf is ok, see https://cran.r-project.org/web/packages/emmeans/vignettes/FAQs.html#asymp
 
-# Boxplots # FIGURE 5a #
+confints3$TreatmentNumeric <-
+  ifelse(confints3$Treatment == "LF", 1, 0)
+confints3$TreatmentNumeric <-
+  ifelse(confints3$Treatment == "LUS",
+         2,
+         confints3$TreatmentNumeric)
+confints3$TreatmentNumeric <-
+  ifelse(confints3$Treatment == "LBS",
+         3,
+         confints3$TreatmentNumeric)
+# Post hoc pairwase comparison, tukey method for family of 4 estimates
+pairs(emmeans(mod3, ~Treatment)) 
+
+# Plots
 abundLop$numericTreatment <-
   ifelse(abundLop$Treatment == "LF", 1, 0)
 abundLop$numericTreatment <-
@@ -296,31 +420,33 @@ abundLop$numericTreatment <-
 abundLop$numericTreatment <-
   ifelse(abundLop$Treatment == "LBS", 3, abundLop$numericTreatment)
 
+# Plot
 jpeg(
-  filename = "../graphics/numberOfEncountersLope.jpg",
+  filename = "../graphics/LopeAbund.jpg",
   width = 600,
-  height = 600,
+  height = 550,
   quality = 100,
   res = 150
 )
 
 par(mfrow = c(1, 1), mar = c(5, 5, 2, 1))
 
-boxplot(
-  Samples ~ numericTreatment,
-  abundLop,
-  ylab = "Number of samples",
-  xlab = "Area",
-  axes = F,
-  ylim = c(0, 250),
-  cex.lab = 0.9
-)
+plot(exp(emmean) ~ TreatmentNumeric, confints3, axes = F, xlim = c(0.8,3.2), pch = 16,
+     ylim = c(0,300), ylab = "Number of samples", xlab = "Sampling area")
+points(Samples ~ jitter(numericTreatment, factor = 0.2), abundLop, col = mycol, pch = 16)
+
+arrows(x0 = confints3$TreatmentNumeric, 
+       x1 = confints3$TreatmentNumeric,
+       y0 = exp(confints3$asymp.LCL),
+       y1 = exp(confints3$asymp.UCL),
+       code = 3, angle = 90,
+       length = 0.05)
 
 axis(1,
      at = c(1:3),
      labels = c("LF", "LUS", "LBS"))
-axis(2, at = seq(0, 250, 25))
-box()
+axis(2, at = seq(0, 300, 50))
+#box()
 
 mtext(
   side = 3,
@@ -328,11 +454,48 @@ mtext(
   adj = 0,
   line = 1
 )
+
+# Significant pairwise differences
+arrows(
+  x0 = 1,
+  y0 = 260,
+  x1 = 3,
+  y1 = 260,
+  code = 3,
+  angle = 90,
+  length = 0.03
+)
+
+text(x = 2,
+     y = 270,
+     substitute(paste(italic('p'), " < 0.001")),
+     cex = 0.5)
+
+arrows(
+  x0 = 1,
+  y0 = 290,
+  x1 = 2,
+  y1 = 290,
+  code = 3,
+  angle = 90,
+  length = 0.03
+)
+
+text(x = 1.5,
+     y = 300,
+     substitute(paste(italic('p'), " < 0.001")),
+     cex = 0.5)
+
+
+
+
 dev.off()
 
 #### Lope rarefied richness ####
 lopeOnly <-
   rareResults[which(rareResults$TreatmentFinal %in% c("LF", "LUS", "LBS")),]
+
+lopeOnly <- lopeOnly[,c(1,2,3,4)]
 
 # Create numeric variable to plot in correct order for paper
 lopeOnly$numericTreatment <-
@@ -347,38 +510,56 @@ lopeOnly$numericTreatment <-
          lopeOnly$numericTreatment)
 
 
-# Test of difference in rarefied species richness in Lope
-kruskal.test(x = lopeOnly$rarefiedRichness,
-             g = lopeOnly$TreatmentFina)
+# Test of difference in rarefied species richness in burned savs
+mod4 <- glm(rarefiedRichness ~ TreatmentFinal-1, data = lopeOnly) # test difference from 0 for each treatment
+hist(resid(mod4))
+par(mfrow = c(2,2))
+plot(mod4) # ok
+summary(mod4)
 
-dunnTest(rarefiedRichness ~ TreatmentFinal, lopeOnly)
+confints4 <- data.frame(emmeans(mod4, ~TreatmentFinal)) # note that df Inf is ok, see https://cran.r-project.org/web/packages/emmeans/vignettes/FAQs.html#asymp
 
-# Figure 5b
+confints4$TreatmentNumeric <-
+  ifelse(confints4$TreatmentFinal == "LF", 1, 0)
+confints4$TreatmentNumeric <-
+  ifelse(confints4$TreatmentFinal == "LUS",
+         2,
+         confints4$TreatmentNumeric)
+confints4$TreatmentNumeric <-
+  ifelse(confints4$TreatmentFinal == "LBS",
+         3,
+         confints4$TreatmentNumeric)
+
+# POst hoc pairwase comparison, tukey method for family of 4 estimates
+pairs(emmeans(mod4, ~TreatmentFinal)) 
+
+# Plot
 jpeg(
   filename = "../graphics/LopeRarefied.jpg",
   width = 600,
-  height = 600,
+  height = 550,
   quality = 100,
   res = 150
 )
 
 par(mfrow = c(1, 1), mar = c(5, 5, 2, 1))
 
-boxplot(
-  rarefiedRichness ~ numericTreatment,
-  lopeOnly,
-  ylab = "Rarefied species richness",
-  xlab = "Area",
-  axes = F,
-  ylim = c(0, 15),
-  cex.lab = 0.9
-)
+plot(emmean ~ TreatmentNumeric, confints4, axes = F, xlim = c(0.8,3.2), pch = 16,
+     ylim = c(0,20), ylab = "Rarefied species richness", xlab = "Sampling area")
+points(rarefiedRichness ~ jitter(numericTreatment, factor = 0.2), lopeOnly, col = mycol, pch = 16)
+
+arrows(x0 = confints4$TreatmentNumeric, 
+       x1 = confints4$TreatmentNumeric,
+       y0 = confints4$asymp.LCL,
+       y1 = confints4$asymp.UCL,
+       code = 3, angle = 90,
+       length = 0.05)
 
 axis(1,
      at = c(1:3),
-     labels = c("LF", "LBS", "LUS"))
-axis(2, at = seq(0, 15, 5))
-box()
+     labels = c("LF", "LUS", "LBS"))
+axis(2, at = seq(0, 20, 5))
+#box()
 
 mtext(
   side = 3,
@@ -386,6 +567,38 @@ mtext(
   adj = 0,
   line = 1
 )
+
+# Significant pairwise differences
+arrows(
+  x0 = 1,
+  y0 = 13,
+  x1 = 3,
+  y1 = 13,
+  code = 3,
+  angle = 90,
+  length = 0.03
+)
+
+text(x = 2,
+     y = 14,
+     substitute(paste(italic('p'), " < 0.001")),
+     cex = 0.5)
+
+arrows(
+  x0 = 2,
+  y0 = 15,
+  x1 = 3,
+  y1 = 15,
+  code = 3,
+  angle = 90,
+  length = 0.03
+)
+
+text(x = 2.5,
+     y = 16,
+     substitute(paste(italic('p'), " < 0.001")),
+     cex = 0.5)
+
 dev.off()
 
 #### NMDS ####
@@ -414,12 +627,12 @@ par(mar = c(4, 4, 1, 1))
 plot(n,
      xlim = c(-.6, .45),
      ylim = c(-.51, .4),
-     type = "n")
+     type = "n", bty = "n")
 
 points(
   jitter(n$points, factor = 100),
-  pch = 21,
-  bg = c(
+  pch = c(15,15,15,16,17,16,17,18,18,18,18),
+  col = c(
     "chartreuse3",
     "chartreuse3",
     "chartreuse3",
@@ -452,7 +665,7 @@ points(
 
 legend(
   "bottomright",
-  pch = 16,
+  pch = c(15,16,17,18),
   lty = NULL,
   legend = c("LF", "LUS 13", "LUS 20", "LBS"),
   col = c("chartreuse3", "darkgoldenrod1", "cornsilk4", "brown4"),
@@ -462,3 +675,4 @@ legend(
 )
 
 dev.off()
+
