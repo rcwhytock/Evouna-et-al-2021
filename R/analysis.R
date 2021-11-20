@@ -8,6 +8,7 @@ library(FSA)
 library(dendextend)
 library(cluster)
 library(emmeans)
+library(MASS)
 
 #### Load the species x sample matrix for rarefaction ####
 ssMatrix <- read.csv("../data/species_x_sample_matrix.csv")
@@ -40,7 +41,7 @@ rareResults <- data.frame(site = names(rareResults),
 
 # Plot rarefaction curves # FIGURE 2 #
 jpeg(
-  filename = "../graphics/rarefiedRichnessCurves.jpg" ,
+  filename = "../graphics/Fig2.jpg" ,
   width = 800,
   height = 800,
   quality = 100,
@@ -157,10 +158,12 @@ confints1$TreatmentNumeric <-
          4,
          confints1$TreatmentNumeric)
 
-# POst hoc pairwase comparison, tukey method for family of 4 estimates
-pairs(emmeans(mod1, ~TreatmentFinal)) 
+# Post hoc pairwase comparison, tukey method for family of 4 estimates
+pairsRareBurned <- pairs(emmeans(mod1, ~TreatmentFinal)) 
+pairsRareBurned <- data.frame(pairsRareBurned )
+write.csv(pairsRareBurned , "../results/TableS3.csv", row.names = F) 
 
-# Create transparent color for plotting raw data points
+    # Create transparent color for plotting raw data points
 mycol <- rgb(0, 0, 0, alpha = 0.35, names = "black")
 
 # Add numeric treatment name for plotting raw data
@@ -181,7 +184,7 @@ rareResults$TreatmentNumeric <-
 
 # Plot
 jpeg(
-  filename = "../graphics/burnedSavannaRarefied.jpg",
+  filename = "../graphics/Fig3b.jpg",
   width = 600,
   height = 550,
   quality = 100,
@@ -266,7 +269,10 @@ confints2$TreatmentNumeric <-
          confints2$TreatmentNumeric)
 
 # POst hoc pairwase comparison, tukey method for family of 4 estimates
-pairs(emmeans(mod2, ~Treatment)) 
+pairsAbundBurned <- pairs(emmeans(mod2, ~Treatment)) 
+pairsAbundBurned <- data.frame(pairsAbundBurned)
+write.csv(pairsAbundBurned, "../results/TableS2.csv", row.names = F) 
+
 
 # Plots # FIGURE 3a #
 abundSav$numericTreatment <-
@@ -280,7 +286,7 @@ abundSav$numericTreatment <-
 
 # Plot
 jpeg(
-  filename = "../graphics/burnedSavannaAbund.jpg",
+  filename = "../graphics/Fig3a.jpg",
   width = 600,
   height = 550,
   quality = 100,
@@ -363,7 +369,7 @@ dend <- as.dendrogram(hc)
 
 # Figure 4
 jpeg(
-  filename = "../graphics/dendrogram.jpg",
+  filename = "../graphics/Fig4.jpg",
   width = 800,
   height = 800,
   quality = 100,
@@ -383,7 +389,7 @@ plot(dend, horiz = T)
 
 dev.off()
 
-#### Lope unburned savannas abundance ####
+#### Lope habitat abundance ####
 abundLop <-
   abundance[which(abundance$Treatment %in% c("LF", "LUS", "LBS")), ]
 
@@ -409,8 +415,11 @@ confints3$TreatmentNumeric <-
   ifelse(confints3$Treatment == "LBS",
          3,
          confints3$TreatmentNumeric)
-# Post hoc pairwase comparison, tukey method for family of 4 estimates
-pairs(emmeans(mod3, ~Treatment)) 
+
+# Post hoc pairwase comparison, tukey method
+pairsLopeAbund <- pairs(emmeans(mod3, ~Treatment)) 
+pairsLopeAbund <- data.frame(pairsLopeAbund)
+write.csv(pairsLopeAbund, "../results/TableS4.csv", row.names = F) 
 
 # Plots
 abundLop$numericTreatment <-
@@ -422,7 +431,7 @@ abundLop$numericTreatment <-
 
 # Plot
 jpeg(
-  filename = "../graphics/LopeAbund.jpg",
+  filename = "../graphics/Fig5a.jpg",
   width = 600,
   height = 550,
   quality = 100,
@@ -486,9 +495,6 @@ text(x = 1.5,
      substitute(paste(italic('p'), " < 0.001")),
      cex = 0.5)
 
-
-
-
 dev.off()
 
 #### Lope rarefied richness ####
@@ -531,11 +537,13 @@ confints4$TreatmentNumeric <-
          confints4$TreatmentNumeric)
 
 # POst hoc pairwase comparison, tukey method for family of 4 estimates
-pairs(emmeans(mod4, ~TreatmentFinal)) 
+pairsLopeRare <- pairs(emmeans(mod4, ~TreatmentFinal)) 
+pairsLopeRare <- data.frame(pairsLopeRare)
+write.csv(pairsLopeRare, "../results/TableS5.csv", row.names = F) 
 
 # Plot
 jpeg(
-  filename = "../graphics/LopeRarefied.jpg",
+  filename = "../graphics/Fig5b.jpg",
   width = 600,
   height = 550,
   quality = 100,
@@ -615,7 +623,7 @@ n <- metaMDS(dis, k = 2) # mds
 
 # Figure 6
 jpeg(
-  filename = "../graphics/NMDS_Lope.jpg",
+  filename = "../graphics/Fig6.jpg",
   width = 800,
   height = 800,
   quality = 100,
