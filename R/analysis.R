@@ -53,47 +53,47 @@ rarecurve(
   step = 1,
   label = F,
   col = c(
-    "cornflowerblue",
-    "cornflowerblue",
-    "cornflowerblue",
-    "chartreuse3",
-    "chartreuse3",
-    "chartreuse3",
-    "darkgoldenrod1",
-    "darkgoldenrod1",
-    "darkgoldenrod1",
-    "darkgoldenrod1",
-    "brown4",
-    "brown4",
-    "brown4",
-    "brown4",
-    "cornflowerblue",
-    "cornflowerblue",
-    "cornflowerblue",
-    "cornflowerblue",
-    "cornflowerblue",
-    "cornflowerblue"
+    "grey50", #other
+    "grey50", #other
+    "grey50", #other
+    "forestgreen", #LF
+    "forestgreen", #LF
+    "forestgreen", #LF
+    "darkorange", #LUS
+    "darkorange", #LUS
+    "darkorange", #LUS
+    "darkorange", #LUS
+    "blue", #LBS
+    "blue", #LBS
+    "blue", #LBS
+    "blue", #LBS
+    "grey50", #other
+    "grey50", #other
+    "grey50", #other
+    "grey50", #other
+    "grey50", #other
+    "grey50" #other
   ),
-  lty = c(1,
-          1,
-          1,
+  lty = c(2,
+          2,
+          2,
+          3, 
+          3, 
+          3, 
+          1,#
+          1,#
+          1,#
+          1,#
+          4,
+          4,
+          4,
+          4,
           2,
           2,
           2,
-          3,
-          3,
-          3,
-          3,
-          4,
-          4,
-          4,
-          4,
-          1,
-          1,
-          1,
-          1,
-          1,
-          1),
+          2,
+          2,
+          2),
   lwd = 2,
   bty = "n",
   xlim = c(0, 200),
@@ -103,9 +103,9 @@ rarecurve(
 
 legend(
   "bottomright",
-  lty = c(1, 2, 3, 4),
+  lty = c(2, 3, 1, 4),
   legend = c("Other", "LF", "LUS", "LBS"),
-  col = c("cornflowerblue", "chartreuse3", "darkgoldenrod1", "brown4"),
+  col = c("grey28", "forestgreen", "darkorange", "blue"),
   bty = "n",
   lwd = 2
 )
@@ -639,19 +639,19 @@ plot(n,
 
 points(
   jitter(n$points, factor = 100),
-  pch = c(15,15,15,16,17,16,17,18,18,18,18),
-  col = c(
-    "chartreuse3",
-    "chartreuse3",
-    "chartreuse3",
-    "darkgoldenrod1",
-    "cornsilk4",
-    "darkgoldenrod1",
-    "cornsilk4",
-    "brown4",
-    "brown4",
-    "brown4",
-    "brown4"
+  pch = c(22,22,22,21,24,21,24,23,23,23,23),
+  bg = c(
+    "forestgreen",
+    "forestgreen",
+    "forestgreen",
+    "darkorange",
+    "darkorange",#
+    "darkorange",
+    "darkorange",#
+    "blue",
+    "blue",
+    "blue",
+    "blue"
   ),
   cex = 1.8
 )
@@ -673,11 +673,11 @@ points(
 
 legend(
   "bottomright",
-  pch = c(15,16,17,18),
+  pch = c(22,24,21,23),
   lty = NULL,
-  legend = c("LF", "LUS 13", "LUS 20", "LBS"),
-  col = c("chartreuse3", "darkgoldenrod1", "cornsilk4", "brown4"),
-  bg = c("chartreuse3", "darkgoldenrod1", "cornsilk4", "brown4"),
+  legend = c("LF", "LUS 20", "LUS 13", "LBS"),
+  pt.bg = c("forestgreen", "darkorange", "darkorange", "blue"),
+  col = c("darkgreen",  "darkorange", "darkorange", "blue"),
   bty = "n",
   cex = 1
 )
