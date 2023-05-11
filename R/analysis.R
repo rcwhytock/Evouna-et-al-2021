@@ -198,9 +198,9 @@ plot(emmean ~ TreatmentNumeric, confints1, axes = F, xlim = c(0.8,4.5), pch = 16
 points(rarefiedRichness ~ jitter(TreatmentNumeric, factor = 0.2), rareResults, col = mycol, pch = 16)
 
 arrows(x0 = confints1$TreatmentNumeric, 
-       x1 = confints1$TreatmentNumeric,
-       y0 = confints1$asymp.LCL,
-       y1 = confints1$asymp.UCL,
+       x1 = c(2,1,3,4),
+       y0 = confints1$lower.CL,
+       y1 = confints1$upper.CL,
        code = 3, angle = 90,
        length = 0.05)
 
@@ -558,14 +558,14 @@ points(rarefiedRichness ~ jitter(numericTreatment, factor = 0.2), lopeOnly, col 
 
 arrows(x0 = confints4$TreatmentNumeric, 
        x1 = confints4$TreatmentNumeric,
-       y0 = confints4$asymp.LCL,
-       y1 = confints4$asymp.UCL,
+       y0 = confints4$lower.CL,
+       y1 = confints4$upper.CL,
        code = 3, angle = 90,
        length = 0.05)
 
 axis(1,
      at = c(1:3),
-     labels = c("LF", "LUS", "LBS"))
+     labels = c("LF", "LUS+LIBS", "LBS"))
 axis(2, at = seq(0, 20, 5))
 #box()
 
